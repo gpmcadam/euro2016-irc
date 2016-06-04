@@ -1,0 +1,11 @@
+{
+  "name": "euro-2016-irc",
+  "version": "1.0.0",
+  "description": "Euro 2016 IRC integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
