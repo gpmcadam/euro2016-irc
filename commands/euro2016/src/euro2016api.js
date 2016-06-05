@@ -44,7 +44,7 @@ const getGroupByTeam = findTeam => {
         getGroups().then(resp => {
             const group = resp.groups.filter(group => {
                 return group.standings.filter(({ team }) => {
-                    const reg = new RegExp(findTeam.replace(' ', '.*'));
+                    const reg = new RegExp(findTeam.replace(' ', '.*'), 'i');
                     return reg.test(team.officialName);
                 }).length > 0
             }).shift();
