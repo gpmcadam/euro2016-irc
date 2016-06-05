@@ -10,12 +10,14 @@ const port = process.env.IRC_PORT || 6667;
 
 const client = new irc.Client(server, nick, { port, channels });
 
+
 const commandMapping = {
     hello: require('./commands/hello'),
     group: euro2016commands.group,
     country: euro2016commands.country,
     team: euro2016commands.country,
-    matches: euro2016commands.matches
+    matches: euro2016commands.matches,
+    player: euro2016commands.player
 };
 
 const mapCommand = (command, mapping, client) => {
