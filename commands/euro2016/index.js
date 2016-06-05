@@ -58,7 +58,7 @@ const country = (command, client) => {
         .catch(e => {
             sendError(command, client, e.message);
         });
-}
+};
 
 const matches = (command, client) => {
     euro2016.getMatches(command.text)

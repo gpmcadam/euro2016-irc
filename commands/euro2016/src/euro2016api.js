@@ -4,7 +4,7 @@ const request = require('request');
 const qs = require('querystring');
 const Promise = require('bluebird');
 const moment = require('moment');
-const chrono = require('chrono-node')
+const chrono = require('chrono-node');
 
 const makeRequest = (path, params, app, version) => {
     if (!params) {
@@ -27,9 +27,8 @@ const makeRequest = (path, params, app, version) => {
             'Accept-Encoding': 'gzip, deflate'
         },
         timeout: 10000
-    }
+    };
     const url = `http://daaseuro2016.uefa.com/api/v${version}/${app}/en/${path}?${qs.stringify(params).replace(/%24/g, '$')}`;
-    console.log(url);
     return new Promise((resolve, reject) => {
         request.get(url, options, (err, response, body) => {
             if (err) {
@@ -71,7 +70,7 @@ const getGroupByTeam = findTeam => {
                     const team = standing.team;
                     const reg = new RegExp(findTeam.replace(' ', '.*'), 'i');
                     return reg.test(team.officialName);
-                }).length > 0
+                }).length > 0;
             }).shift();
             if (!group) {
                 reject(new Error('Oops! I can\'t find that country.'));
@@ -101,11 +100,11 @@ const getMatches = queryDate => {
             const matches = resp.matchInfoItems.filter(match => {
                 return moment(match.dateTime).isSame(queryDate, 'day');
             }).sort((a, b) => {
-                return moment(a.dateTime).isAfter(moment(b.dateTime))
+                return moment(a.dateTime).isAfter(moment(b.dateTime));
             });
             resolve({
                 matches, queryDate
-            })
+            });
         })
         .catch(reject);
     });
@@ -132,14 +131,11 @@ const searchPlayer = query => {
 
 const getPlayer = playerId => {
     return new Promise((resolve, reject) => {
-        // makeRequest(`players/${playerId}/matchlog`)
-        //     .then(playerMatchLog => {
-                makeRequest(`players/${playerId}`, { '$top': 20, '$skip': 0 })
-                    .then(playerFullData => {
-                        resolve(playerFullData);
-                    })
-                    .catch(reject);
-            // });
+        makeRequest(`players/${playerId}`, { '$top': 20, '$skip': 0 })
+            .then(playerFullData => {
+                resolve(playerFullData);
+            })
+            .catch(reject);
     });
 };
 

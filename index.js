@@ -89,4 +89,5 @@ client.addListener('message', (from, to, message) => {
     mapCommand(command, commandMapping, client);
 });
 
+/* eslint-disable no-console */
 client.addListener('error', message => console.log('error: ', message));
