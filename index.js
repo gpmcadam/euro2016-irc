@@ -1,8 +1,14 @@
+require('dotenv').config();
+
 const irc = require('irc');
-const config = require('./.config');
 const euro2016commands = require('./commands/euro2016');
 
-const client = new irc.Client(config.server, config.nick, config);
+const server = process.env.SERVER || 'irc.rizon.net';
+const nick = process.env.NICK || 'Euro2016';
+const channels = process.env.CHANNELS.split(',').map(channel => `#${channel }`) || [];
+const port = process.env.PORT || 6667;
+
+const client = new irc.Client(server, nick, { port, channels });
 
 const commandMapping = {
     hello: require('./commands/hello'),
