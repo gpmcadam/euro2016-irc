@@ -1,3 +1,5 @@
+'use strict';
+
 const euro2016 = require('./src/euro2016api');
 const AsciiTable = require('ascii-table');
 

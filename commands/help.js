@@ -1,3 +1,5 @@
+'use strict';
+
 const sendHelpSummary = (command, client, helpMapping, commands) => {
     const commandsHelp = commands.map(command => `!${command}`).join(', ');
     client.say(command.to, `${command.from}: Available commands: ${commandsHelp}`);
