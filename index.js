@@ -42,7 +42,8 @@ const commandMapping = {
     group: euro2016commands.group,
     country: euro2016commands.country,
     team: euro2016commands.country,
-    matches: euro2016commands.matches
+    matches: euro2016commands.matches,
+    player: euro2016commands.player
 };
 
 const mapCommand = (command, mapping, client) => {

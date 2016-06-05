@@ -19,6 +19,10 @@ const sendMatches = (command, client, result) => {
     formattedMatches.length > 0 && client.say(command.to, `${command.from}: ${formattedMatches.join(' | ')}`);
 };
 
+const sendPlayer = (command, client, player) => {
+    client.say(command.to, `${command.from}: ${player.profile.webNameAlt} (#${player.profile.jerseyNumber} ${player.profile.fieldSubPosName}) ${player.profile.countryName} (${player.profile.clubOfficialName}) - Played: ${player.profile.matchesPlayed} Scored: ${player.profile.goalsScored} Conceded: ${player.profile.goalsConceded}`);
+};
+
 const sendError = (command, client, message) => {
     client.say(command.to, `${command.from}: ERROR! ${message}`);
 };
@@ -64,4 +68,14 @@ const matches = (command, client) => {
         });
 };
 
-module.exports = { group, country, matches };
+const player = (command, client) => {
+    euro2016.searchPlayer(command.text)
+        .then(player => {
+            sendPlayer(command, client, player);
+        })
+        .catch(e => {
+            sendError(command, client, e.message);
+        });
+};
+
+module.exports = { group, country, matches, player };

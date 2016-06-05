@@ -14,12 +14,24 @@ const makeRequest = (path, params, app, version) => {
     if (!version) {
         version = 2;
     }
-    const url = `http://daaseuro2016.uefa.com/api/v${version}/${app}/en/${path}?${qs.stringify(params).replace('%24', '$')}`;
-    // console.log(url);
+
+    const options = {
+        headers: {
+            'Connection': 'close',
+            'Accept': '*/*',
+            'User-Agent': 'Euro2016 - Prod/1.6 (iPhone; iOS 9.3.2; Scale/2.00)',
+            'Accept-Language': 'en-GB;q=1',
+            'Authorization': `SportDataLayer key=${process.env.EURO2016_API_KEY}`,
+            'Accept-Encoding': 'gzip, deflate'
+        },
+        timeout: 10000
+    }
+    const url = `http://daaseuro2016.uefa.com/api/v${version}/${app}/en/${path}?${qs.stringify(params).replace(/%24/g, '$')}`;
+    console.log(url);
     return new Promise((resolve, reject) => {
-        request.get(url, (err, response, body) => {
+        request.get(url, options, (err, response, body) => {
             if (err) {
-                reject(new Error('Oops! I can\t get that for you right now. Try again later?'));
+                reject(new Error('Oops! I can\'t get that for you right now. Try again later?'));
                 return;
             }
             if (response.statusCode !== 200) {
@@ -44,7 +56,8 @@ const getGroup = groupId => {
                 return;
             }
             return resolve(group);
-        });
+        })
+        .catch(reject);
     });
 };
 
@@ -63,11 +76,12 @@ const getGroupByTeam = findTeam => {
                 return;
             }
             return resolve(group);
-        });
+        })
+        .catch(reject);
     });
 };
 
-const getMatches = (queryDate) => {
+const getMatches = queryDate => {
     if (!queryDate) {
         queryDate = moment();
     }
@@ -90,8 +104,41 @@ const getMatches = (queryDate) => {
             resolve({
                 matches, queryDate
             })
-        });
+        })
+        .catch(reject);
     });
 };
 
-module.exports = { getGroups, getGroup, getGroupByTeam, getMatches };
+const searchPlayer = query => {
+    return new Promise((resolve, reject) => {
+        makeRequest('competitions/3/seasons/2016/players', {
+            tournamentPhase: 2,
+            isMobileApp: 'true',
+            '$top': 1000,
+            webname: query
+        }, 'football')
+            .then(resp => {
+                if (!resp || !resp.playerSearchList || resp.playerSearchList.length < 1) {
+                    reject(new Error('No such player'));
+                    return;
+                }
+                return resolve(getPlayer(resp.playerSearchList[0].idPlayer));
+            })
+            .catch(reject);
+    });
+};
+
+const getPlayer = playerId => {
+    return new Promise((resolve, reject) => {
+        // makeRequest(`players/${playerId}/matchlog`)
+        //     .then(playerMatchLog => {
+                makeRequest(`players/${playerId}`, { '$top': 20, '$skip': 0 })
+                    .then(playerFullData => {
+                        resolve(playerFullData);
+                    })
+                    .catch(reject);
+            // });
+    });
+};
+
+module.exports = { getGroups, getGroup, getGroupByTeam, getMatches, searchPlayer, getPlayer };
