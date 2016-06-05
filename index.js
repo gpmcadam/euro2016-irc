@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({silent: true});
 
 const irc = require('irc');
 const euro2016commands = require('./commands/euro2016');

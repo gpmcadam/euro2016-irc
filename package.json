@@ -4,7 +4,7 @@
     "description": "Euro 2016 IRC integration",
     "main": "index.js",
     "engines": {
-        "node": "6.0.0"
+        "node": "4.4.3"
     },
     "scripts": {
         "start": "node index.js",

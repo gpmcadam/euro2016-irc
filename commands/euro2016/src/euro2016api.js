@@ -4,7 +4,16 @@ const Promise = require('bluebird');
 const moment = require('moment');
 const chrono = require('chrono-node')
 
-const makeRequest = (path, params={}, app='mobile/euro2016', version=2) => {
+const makeRequest = (path, params, app, version) => {
+    if (!params) {
+        params = {};
+    }
+    if (!app) {
+        app = 'mobile/euro2016';
+    }
+    if (!version) {
+        version = 2;
+    }
     const url = `http://daaseuro2016.uefa.com/api/v${version}/${app}/en/${path}?${qs.stringify(params).replace('%24', '$')}`;
     // console.log(url);
     return new Promise((resolve, reject) => {
@@ -43,7 +52,8 @@ const getGroupByTeam = findTeam => {
     return new Promise((resolve, reject) => {
         getGroups().then(resp => {
             const group = resp.groups.filter(group => {
-                return group.standings.filter(({ team }) => {
+                return group.standings.filter(standing => {
+                    const team = standing.team;
                     const reg = new RegExp(findTeam.replace(' ', '.*'), 'i');
                     return reg.test(team.officialName);
                 }).length > 0
@@ -72,7 +82,11 @@ const getMatches = (queryDate) => {
             '$top': 100
         }, 'football')
         .then(resp => {
-            const matches = resp.matchInfoItems.filter(({ dateTime }) => moment(dateTime).isSame(queryDate, 'day')).sort((a, b) => moment(a.dateTime).isAfter(moment(b.dateTime)));
+            const matches = resp.matchInfoItems.filter(match => {
+                return moment(match.dateTime).isSame(queryDate, 'day');
+            }).sort((a, b) => {
+                return moment(a.dateTime).isAfter(moment(b.dateTime))
+            });
             resolve({
                 matches, queryDate
             })
