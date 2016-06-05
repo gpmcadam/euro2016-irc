@@ -7,8 +7,10 @@ const server = process.env.IRC_SERVER || 'irc.rizon.net';
 const nick = process.env.IRC_NICK || 'Euro2016';
 const channels = process.env.IRC_CHANNELS.split(',').map(channel => `#${channel }`) || [];
 const port = process.env.IRC_PORT || 6667;
+const realName = process.env.IRC_REALNAME || null;
+const userName = process.env.IRC_NAME || null;
 
-const client = new irc.Client(server, nick, { port, channels });
+const client = new irc.Client(server, nick, { port, channels, realName, userName });
 
 const helpMapping = {
     group: {
@@ -70,7 +72,13 @@ const parseCommand = (message, from, to) => {
     };
 };
 
-client.addListener('message', function (from, to, message) {
+client.addListener('registered', () => {
+    if (process.env.IRC_PASSWORD) {
+        client.say('nickserv', `IDENTIFY ${process.env.IRC_PASSWORD}`);
+    }
+});
+
+client.addListener('message', (from, to, message) => {
     const command = parseCommand(message, from, to);
     if (!command) {
         return;
@@ -78,6 +86,4 @@ client.addListener('message', function (from, to, message) {
     mapCommand(command, commandMapping, client);
 });
 
-client.addListener('error', function(message) {
-    console.log('error: ', message);
-});
+client.addListener('error', message => console.log('error: ', message));
