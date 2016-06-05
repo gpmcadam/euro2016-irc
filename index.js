@@ -10,9 +10,33 @@ const port = process.env.IRC_PORT || 6667;
 
 const client = new irc.Client(server, nick, { port, channels });
 
+const helpMapping = {
+    group: {
+        desc: 'Show standings for a group',
+        usage: '[query]',
+        example: ['a', 'france']
+    },
+    country: {
+        desc: 'Show group standings for a country',
+        usage: '[country]',
+        example: ['england', 'rep ireland', 'ger'],
+        aliases: ['team']
+    },
+    matches: {
+        desc: 'Show matches on a given day',
+        usage: '[day]',
+        example: ['tomorrow', 'this friday', 'yesterday']
+    },
+    player: {
+        desc: 'Query player information (beta)',
+        usage: '[player name]',
+        example: ['rooney', 'rashford', 'ibra', 'cech']
+    }
+};
 
 const commandMapping = {
     hello: require('./commands/hello'),
+    help: (command, client) => require('./commands/help')(command, client, helpMapping, Object.keys(commandMapping)),
     group: euro2016commands.group,
     country: euro2016commands.country,
     team: euro2016commands.country,
