@@ -6,6 +6,8 @@ const Promise = require('bluebird');
 const moment = require('moment');
 const chrono = require('chrono-node');
 
+const alert = require('../../../util/alert');
+
 const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss ZZ';
 
 const makeRequest = (path, params, app, version) => {
@@ -34,10 +36,12 @@ const makeRequest = (path, params, app, version) => {
     return new Promise((resolve, reject) => {
         request.get(url, options, (err, response, body) => {
             if (err) {
+                alert('Euro2016 Service Failure', err);
                 reject(new Error('Oops! I can\'t get that for you right now. Try again later?'));
                 return;
             }
             if (response.statusCode !== 200) {
+                alert('Euro2016 Service Failure', err);
                 reject(new Error('Oops! I can\'t get that for you right now. Try again later?'));
                 return;
             }
