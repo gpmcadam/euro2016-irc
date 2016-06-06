@@ -35,6 +35,10 @@ const helpMapping = {
         desc: 'Query player information (beta)',
         usage: '[player name]',
         example: ['rooney', 'rashford', 'ibra', 'cech']
+    },
+    next: {
+        desc: 'Show the next match',
+        usage: ''
     }
 };
 
@@ -45,7 +49,8 @@ const commandMapping = {
     country: euro2016commands.country,
     team: euro2016commands.country,
     matches: euro2016commands.matches,
-    player: euro2016commands.player
+    player: euro2016commands.player,
+    next: euro2016commands.next
 };
 
 const mapCommand = (command, mapping, client) => {

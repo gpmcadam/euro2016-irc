@@ -6,6 +6,8 @@ const Promise = require('bluebird');
 const moment = require('moment');
 const chrono = require('chrono-node');
 
+const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss ZZ';
+
 const makeRequest = (path, params, app, version) => {
     if (!params) {
         params = {};
@@ -83,9 +85,6 @@ const getGroupByTeam = findTeam => {
 };
 
 const getMatches = queryDate => {
-    if (!queryDate) {
-        queryDate = moment();
-    }
     if (typeof queryDate === 'string') {
         queryDate = moment(chrono.parseDate(queryDate));
     }
@@ -97,11 +96,18 @@ const getMatches = queryDate => {
             '$top': 100
         }, 'football')
         .then(resp => {
-            const matches = resp.matchInfoItems.filter(match => {
-                return moment(match.dateTime).isSame(queryDate, 'day');
-            }).sort((a, b) => {
-                return moment(a.dateTime).isAfter(moment(b.dateTime));
+            let matches = resp.matchInfoItems.map((match) => {
+                match.dateTime = moment(match.dateTime, DATE_FORMAT);
+                return match;
             });
+            matches.sort((a, b) => {
+                return a.dateTime.diff(b.dateTime);
+            });
+            if (queryDate) {
+                matches = matches.filter(match => {
+                    return match.dateTime.isSame(queryDate, 'day');
+                });
+            }
             resolve({
                 matches, queryDate
             });
@@ -118,24 +124,24 @@ const searchPlayer = query => {
             '$top': 1000,
             webname: query
         }, 'football')
-            .then(resp => {
-                if (!resp || !resp.playerSearchList || resp.playerSearchList.length < 1) {
-                    reject(new Error('No such player'));
-                    return;
-                }
-                return resolve(getPlayer(resp.playerSearchList[0].idPlayer));
-            })
-            .catch(reject);
+        .then(resp => {
+            if (!resp || !resp.playerSearchList || resp.playerSearchList.length < 1) {
+                reject(new Error('No such player'));
+                return;
+            }
+            return resolve(getPlayer(resp.playerSearchList[0].idPlayer));
+        })
+        .catch(reject);
     });
 };
 
 const getPlayer = playerId => {
     return new Promise((resolve, reject) => {
         makeRequest(`players/${playerId}`, { '$top': 20, '$skip': 0 })
-            .then(playerFullData => {
-                resolve(playerFullData);
-            })
-            .catch(reject);
+        .then(playerFullData => {
+            resolve(playerFullData);
+        })
+        .catch(reject);
     });
 };
 

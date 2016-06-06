@@ -2,6 +2,8 @@
 
 const euro2016 = require('./src/euro2016api');
 const AsciiTable = require('ascii-table');
+const moment = require('moment');
+require('moment-precise-range-plugin');
 
 const sendGroup = (command, client, group) => {
     const table = new AsciiTable();
@@ -11,10 +13,15 @@ const sendGroup = (command, client, group) => {
     table.toString().split('\n').forEach(line => client.say(command.to, line));
 };
 
+const sendNextMatch = (command, client, match) => {
+    const diff = moment.preciseDiff(match.dateTime, moment());
+    client.say(command.to, `${command.from}: Next match is ${match.homeTeamName} vs ${match.awayTeamName} in ${diff} at ${match.dateTime.format('HH:mm dddd, MMMM Do Z')}`);
+};
+
 const sendMatches = (command, client, result) => {
-    client.say(command.to, `${command.from}: ${result.matches.length} matches found on ${result.queryDate.format('dddd, MMMM Do')}`);
+    client.say(command.to, `${command.from}: ${result.matches.length} matches found on ${result.queryDate.format('dddd, MMMM Do Z')}`);
     const formattedMatches = result.matches.map(match => {
-        const matchStatus = match.status == 1 ? `[${match.time}]` : `${match.results.homeTeamScore - match.results.awayTeamScore}`;
+        const matchStatus = match.status === 1 ? `[${match.dateTime.format('HH:mm')}]` : `${match.results.homeTeamScore - match.results.awayTeamScore}`;
         // TODO when we know the match statuses, we should show this is LIVE, HT, FT etc.
         return `${match.homeTeamName} ${matchStatus} ${match.awayTeamName}`;
     });
@@ -80,4 +87,21 @@ const player = (command, client) => {
         });
 };
 
-module.exports = { group, country, matches, player };
+const next = (command, client) => {
+    euro2016.getMatches()
+        .then(result => {
+            const matches = result.matches;
+            const nextMatch = matches.filter(match => {
+                return match.status === 1;
+            }).shift();
+            if (!nextMatch) {
+                sendError(command, client, 'No upcoming matches found');
+            }
+            sendNextMatch(command, client, nextMatch);
+        })
+        .catch(e => {
+            sendError(command, client, e.message);
+        });
+};
+
+module.exports = { group, country, matches, player, next };
