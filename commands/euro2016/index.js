@@ -3,7 +3,10 @@
 const euro2016 = require('./src/euro2016api');
 const AsciiTable = require('ascii-table');
 const moment = require('moment');
+require('moment-timezone');
 require('moment-precise-range-plugin');
+
+moment.tz.setDefault('Europe/Paris');
 
 const sendGroup = (command, client, group) => {
     const table = new AsciiTable();
@@ -55,7 +58,7 @@ const group = (command, client) => {
 
 const country = (command, client) => {
     if (command.args.length < 1) {
-        client.say(command.to, `${command.from}: You must specify a countr name to search for!`);
+        client.say(command.to, `${command.from}: You must specify a country name to search for!`);
         return;
     }
     euro2016.getGroupByTeam(command.text)
@@ -68,7 +71,7 @@ const country = (command, client) => {
 };
 
 const matches = (command, client) => {
-    euro2016.getMatches(command.text)
+    euro2016.getMatches(command.text || moment())
         .then(result => {
             sendMatches(command, client, result);
         })
