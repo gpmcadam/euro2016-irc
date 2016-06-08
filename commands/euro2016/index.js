@@ -24,7 +24,7 @@ const sendNextMatch = (command, client, match) => {
 const sendMatches = (command, client, result) => {
     client.say(command.to, `${command.from}: ${result.matches.length} matches found on ${result.queryDate.format('dddd, MMMM Do Z')}`);
     const formattedMatches = result.matches.map(match => {
-        const matchStatus = match.status === 1 ? `[${match.dateTime.format('HH:mm')}]` : `${match.results.homeTeamScore - match.results.awayTeamScore}`;
+        const matchStatus = match.status === 1 ? `[${match.dateTime.format('HH:mm')}]` : `${match.results.homeGoals} - ${match.results.awayGoals}`;
         // TODO when we know the match statuses, we should show this is LIVE, HT, FT etc.
         return `${match.homeTeamName} ${matchStatus} ${match.awayTeamName}`;
     });
@@ -47,11 +47,11 @@ const group = (command, client) => {
     if (command.text.length > 1) {
         return country(command, client);
     }
-    euro2016.getGroup(command.args[0])
+    return euro2016.getGroup(command.args[0])
         .then(group => {
             sendGroup(command, client, group);
         })
-        .catch(e => {
+        .error(e => {
             sendError(command, client, e.message);
         });
 };
@@ -65,45 +65,45 @@ const country = (command, client) => {
         .then(group => {
             sendGroup(command, client, group);
         })
-        .catch(e => {
+        .error(e => {
             sendError(command, client, e.message);
         });
 };
 
 const matches = (command, client) => {
-    euro2016.getMatches(command.text || moment())
+    return euro2016.getMatches(command.text || moment())
         .then(result => {
             sendMatches(command, client, result);
         })
-        .catch(e => {
+        .error(e => {
             sendError(command, client, e.message);
         });
 };
 
 const player = (command, client) => {
-    euro2016.searchPlayer(command.text)
+    return euro2016.searchPlayer(command.text)
         .then(player => {
             sendPlayer(command, client, player);
         })
-        .catch(e => {
+        .error(e => {
             sendError(command, client, e.message);
         });
 };
 
 const next = (command, client) => {
-    euro2016.getMatches()
+    return euro2016.getMatches()
         .then(result => {
             const matches = result.matches;
             const nextMatch = matches.filter(match => {
                 return match.status === 1;
             }).shift();
             if (!nextMatch) {
-                sendError(command, client, 'No upcoming matches found');
+                return sendError(command, client, 'No upcoming matches found');
             }
-            sendNextMatch(command, client, nextMatch);
+            return sendNextMatch(command, client, nextMatch);
         })
-        .catch(e => {
-            sendError(command, client, e.message);
+        .error(e => {
+            return sendError(command, client, e.message);
         });
 };
 

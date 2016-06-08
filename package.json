@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "lint": "eslint .",
-    "test": "mocha --recursive test/"
+    "test": "mocha \"./test/**/*-test.js\""
   },
   "author": "",
   "license": "ISC",

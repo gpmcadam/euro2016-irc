@@ -27,7 +27,7 @@ const makeRequest = (path, params, app, version) => {
             'Accept': '*/*',
             'User-Agent': 'Euro2016 - Prod/1.6 (iPhone; iOS 9.3.2; Scale/2.00)',
             'Accept-Language': 'en-GB;q=1',
-            'Authorization': `SportDataLayer key=${process.env.EURO2016_API_KEY}`,
+            'Authorization': `SportDataLayer key=${process.env.EURO2016_API_KEY || ''}`,
             'Accept-Encoding': 'gzip, deflate'
         },
         timeout: 10000
@@ -116,7 +116,7 @@ const getMatches = queryDate => {
                 matches, queryDate
             });
         })
-        .catch(reject);
+        .error(reject);
     });
 };
 
@@ -133,19 +133,20 @@ const searchPlayer = query => {
                 reject(new Error('No such player'));
                 return;
             }
-            return resolve(getPlayer(resp.playerSearchList[0].idPlayer));
+            getPlayer(resp.playerSearchList[0].idPlayer)
+                .then(fullPlayerData => {
+                    resolve(fullPlayerData);
+                });
         })
-        .catch(reject);
+        .error(reject);
     });
 };
 
 const getPlayer = playerId => {
     return new Promise((resolve, reject) => {
         makeRequest(`players/${playerId}`, { '$top': 20, '$skip': 0 })
-        .then(playerFullData => {
-            resolve(playerFullData);
-        })
-        .catch(reject);
+            .then(resolve)
+            .error(reject);
     });
 };
 

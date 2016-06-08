@@ -3,7 +3,7 @@ const sns = new AWS.SNS();
 
 module.exports = (subject, message) => {
     if (!process.env.SNS_ALERT_TOPIC_ARN) {
-        throw new Error('Missing required environment variable SNS_ALERT_TOPIC_ARN');
+        return false;
     }
     sns.publish({
         Subject: subject,
