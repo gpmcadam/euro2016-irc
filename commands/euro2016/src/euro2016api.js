@@ -64,7 +64,7 @@ const getGroup = groupId => {
             }
             return resolve(group);
         })
-        .catch(reject);
+        .error(reject);
     });
 };
 
@@ -84,7 +84,33 @@ const getGroupByTeam = findTeam => {
             }
             return resolve(group);
         })
-        .catch(reject);
+        .error(reject);
+    });
+};
+
+const matchTeamName = (teamName, query) => {
+    return (new RegExp(query.replace(' ', '.*'), 'i')).test(teamName);
+};
+
+const getMatchesForTeam = findTeam => {
+    return new Promise((resolve, reject) => {
+        getMatches().then(resp => {
+            // console.log(resp.matches);
+            // console.log(resp.matches.filter(match => match.matchDateTime !== undefined).length);
+            resp.matches = resp.matches.filter(match => {
+                const isAwayTeam = matchTeamName(match.awayTeamName, findTeam);
+                const isHomeTeam = matchTeamName(match.homeTeamName, findTeam);
+                if (isAwayTeam) {
+                    resp.queryCountry = match.awayTeamName;
+                    return true;
+                } else if (isHomeTeam) {
+                    resp.queryCountry = match.homeTeamName;
+                    return true;
+                }
+            });
+            resolve(resp);
+        })
+        .error(reject);
     });
 };
 
@@ -150,4 +176,12 @@ const getPlayer = playerId => {
     });
 };
 
-module.exports = { getGroups, getGroup, getGroupByTeam, getMatches, searchPlayer, getPlayer };
+module.exports = {
+    getGroups,
+    getGroup,
+    getGroupByTeam,
+    getMatches,
+    getMatchesForTeam,
+    searchPlayer,
+    getPlayer
+};

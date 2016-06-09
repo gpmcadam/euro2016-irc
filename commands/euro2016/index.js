@@ -3,6 +3,8 @@
 const euro2016 = require('./src/euro2016api');
 const AsciiTable = require('ascii-table');
 const moment = require('moment');
+const Promise = require('bluebird');
+
 require('moment-timezone');
 require('moment-precise-range-plugin');
 
@@ -22,7 +24,13 @@ const sendNextMatch = (command, client, match) => {
 };
 
 const sendMatches = (command, client, result) => {
-    client.say(command.to, `${command.from}: ${result.matches.length} matches found on ${result.queryDate.format('dddd, MMMM Do Z')}`);
+    let matchesSuffix = 'found';
+    if (result.queryDate) {
+        matchesSuffix = `found on ${result.queryDate.format('dddd, MMMM Do Z')}`;
+    } else if (result.queryCountry) {
+        matchesSuffix = `found for ${result.queryCountry}`;
+    }
+    client.say(command.to, `${command.from}: ${result.matches.length} matches ${matchesSuffix}`);
     const formattedMatches = result.matches.map(match => {
         const matchStatus = match.status === 1 ? `[${match.dateTime.format('HH:mm')}]` : `${match.results.homeGoals} - ${match.results.awayGoals}`;
         // TODO when we know the match statuses, we should show this is LIVE, HT, FT etc.
@@ -41,8 +49,10 @@ const sendError = (command, client, message) => {
 
 const group = (command, client) => {
     if (command.args.length < 1) {
-        client.say(command.to, `${command.from}: You must specify a group name!`);
-        return;
+        return new Promise(resolve => {
+            client.say(command.to, `${command.from}: You must specify a group name!`);
+            resolve();
+        });
     }
     if (command.text.length > 1) {
         return country(command, client);
@@ -58,12 +68,14 @@ const group = (command, client) => {
 
 const country = (command, client) => {
     if (command.args.length < 1) {
-        client.say(command.to, `${command.from}: You must specify a country name to search for!`);
-        return;
+        return new Promise(resolve => {
+            client.say(command.to, `${command.from}: You must specify a country name to search for!`);
+            resolve();
+        });
     }
-    euro2016.getGroupByTeam(command.text)
-        .then(group => {
-            sendGroup(command, client, group);
+    return euro2016.getMatchesForTeam(command.text)
+        .then(result => {
+            sendMatches(command, client, result);
         })
         .error(e => {
             sendError(command, client, e.message);

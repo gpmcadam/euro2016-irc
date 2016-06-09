@@ -27,7 +27,7 @@ const helpMapping = {
         example: ['a', 'france']
     },
     country: {
-        desc: 'Show group standings for a country',
+        desc: 'Show matches for a country',
         usage: '[country]',
         example: ['england', 'rep ireland', 'ger'],
         aliases: ['team']
