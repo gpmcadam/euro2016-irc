@@ -7,6 +7,7 @@ const moment = require('moment');
 
 const euro2016commands = require('./commands/euro2016');
 const alert = require('./util/alert');
+const ircUtil = require('./util/irc');
 
 const server = process.env.IRC_SERVER || 'irc.rizon.net';
 const nick = process.env.IRC_NICK || 'Euro2016';
@@ -59,33 +60,6 @@ const commandMapping = {
     next: euro2016commands.next
 };
 
-const mapCommand = (command, mapping, client) => {
-    if (!mapping[command.name]) {
-        return false;
-    }
-    return mapping[command.name](command, client);
-};
-
-const isCommand = message => {
-    return message.substring(0, 1) === '!';
-};
-
-const parseCommand = (message, from, to) => {
-    if (!isCommand(message)) {
-        return null;
-    }
-    const parts = message.split(' ');
-    const name = parts.shift().substring(1);
-    const text = parts.join(' ');
-    return {
-        name,
-        args: parts,
-        text,
-        from,
-        to
-    };
-};
-
 client.addListener('registered', () => {
     if (process.env.IRC_PASSWORD) {
         client.say('nickserv', `IDENTIFY ${process.env.IRC_PASSWORD}`);
@@ -93,7 +67,7 @@ client.addListener('registered', () => {
 });
 
 client.addListener('message', (from, to, message) => {
-    const command = parseCommand(message, from, to);
+    const command = ircUtil.parseCommand(message, from, to);
     if (!command) {
         return;
     }
@@ -105,7 +79,7 @@ client.addListener('message', (from, to, message) => {
     if (commandMonitor[min] === ALERT_MESSAGES_PER_MINUTE) {
         alert('Euro 2016 IRC Bot High usage!', `Over ${ALERT_MESSAGES_PER_MINUTE} commands per minute detected.`);
     }
-    mapCommand(command, commandMapping, client);
+    ircUtil.mapCommand(command, commandMapping, client);
 });
 
 /* eslint-disable no-console */
