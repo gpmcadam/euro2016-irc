@@ -54,7 +54,10 @@ const getGroups = () => {
     return makeRequest('groups', { tournamentPhase: 2 });
 };
 
-const getGroup = groupId => {
+const getGroup = (groupId, byTeam) => {
+    if (byTeam === true) {
+        return getGroupByTeam(groupId);
+    }
     return new Promise((resolve, reject) => {
         getGroups().then(resp => {
             const group = resp.groups.filter(group => group.groupName.toUpperCase() === `GROUP ${groupId.toUpperCase()}`).shift();

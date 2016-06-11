@@ -54,13 +54,8 @@ const group = (command, client) => {
             resolve();
         });
     }
-    if (command.text.length > 1) {
-        return country(command, client);
-    }
-    return euro2016.getGroup(command.args[0])
-        .then(group => {
-            sendGroup(command, client, group);
-        })
+    return euro2016.getGroup(command.args[0], command.text.length > 1)
+        .then(group => sendGroup(command, client, group))
         .error(e => {
             sendError(command, client, e.message);
         });
