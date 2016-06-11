@@ -26,7 +26,7 @@ describe('Euro2016!matches', () => {
             const client = { say: sinon.spy() };
             matches(command, client)
                 .finally(() => {
-                    assert.isTrue(client.say.calledOnce);
+                    assert.isTrue(client.say.calledTwice);
                     assert.equal(client.say.getCall(0).args[0], command.to);
                     expect(client.say.getCall(0).args[1]).to.contain(moment().format('dddd, MMMM Do Z'));
                     done();

@@ -83,7 +83,7 @@ const country = (command, client) => {
 };
 
 const matches = (command, client) => {
-    return euro2016.getMatches(command.text || moment())
+    return euro2016.getMatches(command.text || moment(new Date))
         .then(result => {
             sendMatches(command, client, result);
         })
@@ -107,7 +107,7 @@ const next = (command, client) => {
         .then(result => {
             const matches = result.matches;
             const nextMatch = matches.filter(match => {
-                return match.status === 1;
+                return match.status === 1 && match.dateTime.isAfter(moment(new Date));
             }).shift();
             if (!nextMatch) {
                 return sendError(command, client, 'No upcoming matches found');

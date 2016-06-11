@@ -97,7 +97,7 @@ client.addListener('message', (from, to, message) => {
     if (!command) {
         return;
     }
-    const min = moment().format('YYYY-MM-DD HH:mm');
+    const min = moment(new Date).format('YYYY-MM-DD HH:mm');
     if (!commandMonitor[min]) {
         commandMonitor[min] = 0;
     }
