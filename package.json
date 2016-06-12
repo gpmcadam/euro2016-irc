@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node index.js",
     "lint": "eslint .",
-    "test": "mocha \"./test/**/*-test.js\""
+    "test": "mocha \"./test/**/*-test.js\"",
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- -R spec \"./test/**/*-test.js\""
   },
   "author": "",
   "license": "ISC",
@@ -31,6 +32,7 @@
     "eslint": "^2.11.1",
     "mocha": "^2.5.3",
     "nock": "^8.0.0",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "istanbul": "^0.4.2"
   }
 }
