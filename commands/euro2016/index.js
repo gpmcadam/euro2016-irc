@@ -56,7 +56,7 @@ const group = (command, client) => {
     }
     return euro2016.getGroup(command.args[0], command.text.length > 1)
         .then(group => sendGroup(command, client, group))
-        .error(e => {
+        .catch(e => {
             sendError(command, client, e.message);
         });
 };
@@ -72,7 +72,7 @@ const country = (command, client) => {
         .then(result => {
             sendMatches(command, client, result);
         })
-        .error(e => {
+        .catch(e => {
             sendError(command, client, e.message);
         });
 };
@@ -82,7 +82,7 @@ const matches = (command, client) => {
         .then(result => {
             sendMatches(command, client, result);
         })
-        .error(e => {
+        .catch(e => {
             sendError(command, client, e.message);
         });
 };
@@ -92,7 +92,7 @@ const player = (command, client) => {
         .then(player => {
             sendPlayer(command, client, player);
         })
-        .error(e => {
+        .catch(e => {
             sendError(command, client, e.message);
         });
 };
@@ -109,7 +109,7 @@ const next = (command, client) => {
             }
             return sendNextMatch(command, client, nextMatch);
         })
-        .error(e => {
+        .catch(e => {
             return sendError(command, client, e.message);
         });
 };

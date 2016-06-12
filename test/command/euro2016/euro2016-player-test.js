@@ -31,4 +31,36 @@ describe('Euro2016!player', () => {
                 done();
             });
     });
+    it('should show an error for an invalid player', (done) => {
+        nock('http://daaseuro2016.uefa.com/')
+            .get('/api/v2/football/en/competitions/3/seasons/2016/players')
+            .query({
+                tournamentPhase: 2,
+                isMobileApp: true,
+                '$top': 1000,
+                webname: 'messi'
+            })
+            .replyWithFile(200, __dirname + '/stub/euro2016-playersearch-empty.json');
+        const command = { from: 'John', to: '#channel', text: 'messi' };
+        const client = { say: sinon.spy() };
+        player(command, client)
+            .finally(() => {
+                assert.isTrue(client.say.calledOnce);
+                expect(client.say.getCall(0).args[1]).to.contain('ERROR');
+                done();
+            });
+    });
+    it('should show an error when the service is unavailable', (done) => {
+        nock('http://daaseuro2016.uefa.com/')
+            .get('/api/v2/football/en/competitions/3/seasons/2016/players')
+            .reply(500);
+        const command = { from: 'John', to: '#channel', text: 'ronaldo' };
+        const client = { say: sinon.spy() };
+        player(command, client)
+            .finally(() => {
+                assert.isTrue(client.say.calledOnce);
+                expect(client.say.getCall(0).args[1]).to.contain('ERROR');
+                done();
+            });
+    });
 });

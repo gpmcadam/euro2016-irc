@@ -7,6 +7,28 @@ const expect = require('chai').expect;
 const nock = require('nock');
 
 describe('Euro2016!next', () => {
+    it('should show an error when the service is unavailable', done => {
+
+        nock('http://daaseuro2016.uefa.com/')
+            .filteringPath(() => {
+                return '/';
+            })
+            .get('/')
+            .query(() => {
+                return true;
+            })
+            .reply(500);
+        const command = { from: 'John', to: '#channel', text: '', args: [] };
+        const client = { say: sinon.spy() };
+        next(command, client)
+            .finally(() => {
+                assert.isTrue(client.say.calledOnce);
+                assert.equal(client.say.getCall(0).args[0], command.to);
+                expect(client.say.getCall(0).args[1]).to.contain('ERROR');
+                done();
+            });
+    });
+
     it('should show the next match when there are upcoming matches', done => {
 
         nock('http://daaseuro2016.uefa.com/')

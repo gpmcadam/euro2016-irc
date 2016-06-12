@@ -10,7 +10,7 @@ require('moment-precise-range-plugin');
 moment.tz.setDefault('Europe/Paris');
 
 describe('Euro2016!country', () => {
-    it('should show all matches for a country', (done) => {
+    it('should show all matches for a country', done => {
         nock('http://daaseuro2016.uefa.com/')
             .filteringPath(() => {
                 return '/';
@@ -34,7 +34,26 @@ describe('Euro2016!country', () => {
                 done();
             });
     });
-    it('should show a message if no country given', (done) => {
+    it('should show an error if the service is unavailable', done => {
+        nock('http://daaseuro2016.uefa.com/')
+            .filteringPath(() => {
+                return '/';
+            })
+            .get('/')
+            .query(() => {
+                return true;
+            })
+            .reply(500);
+        const command = { from: 'John', to: '#channel', text: 'england', args: [ 'england' ] };
+        const client = { say: sinon.spy() };
+        country(command, client)
+            .finally(() => {
+                assert.isTrue(client.say.calledOnce);
+                expect(client.say.getCall(0).args[1]).to.contain('ERROR');
+                done();
+            });
+    });
+    it('should show a message if no country given', done => {
         const command = { from: 'John', to: '#channel', text: '', args: [  ] };
         const client = { say: sinon.spy() };
         country(command, client)
@@ -45,7 +64,7 @@ describe('Euro2016!country', () => {
                 done();
             });
     });
-    it('should show a message if country not found', (done) => {
+    it('should show a message if country not found', done => {
         nock('http://daaseuro2016.uefa.com/')
             .filteringPath(() => {
                 return '/';

@@ -11,6 +11,26 @@ moment.tz.setDefault('Europe/Paris');
 
 describe('Euro2016!matches', () => {
 
+    it('should show an error when the service is unavailable', (done) => {
+        nock('http://daaseuro2016.uefa.com/')
+            .filteringPath(() => {
+                return '/';
+            })
+            .get('/')
+            .query(() => {
+                return true;
+            })
+            .reply(500);
+        const command = { from: 'John', to: '#channel', text: '', args: [] };
+        const client = { say: sinon.spy() };
+        matches(command, client)
+            .finally(() => {
+                assert.isTrue(client.say.calledOnce);
+                expect(client.say.getCall(0).args[1]).to.contain('ERROR');
+                done();
+            });
+    });
+
     describe('future matches', () => {
         it('should correctly parse the date without a query', (done) => {
             nock('http://daaseuro2016.uefa.com/')
