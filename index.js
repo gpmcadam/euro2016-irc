@@ -82,10 +82,11 @@ client.addListener('message', (from, to, message) => {
         alert('Euro 2016 IRC Bot High usage!', `Over ${ALERT_MESSAGES_PER_MINUTE} commands per minute detected.`);
     }
 
+    const userHash = crypto.createHash('sha256').update(from).digest('hex');
     if (ircUtil.mapCommand(command, commandMapping, client)) {
-        track('command', crypto.createHash('sha256').update(from).digest('hex'), { command, server, nick });
+        track('command', userHash, { command, server, message });
     } else {
-        track('invalid_command', crypto.createHash('sha256').update(from).digest('hex'), { command, server, nick });
+        track('invalid_command', userHash, { command, server, message });
     }
 });
 
