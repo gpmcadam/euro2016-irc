@@ -71,7 +71,6 @@ client.addListener('registered', () => {
 client.addListener('message', (from, to, message) => {
     const command = ircUtil.parseCommand(message, from, to);
     if (!command) {
-        track('invalid_command', crypto.createHash('sha256').update(from).digest('hex'), { server, nick });
         return;
     }
     const min = moment(new Date).format('YYYY-MM-DD HH:mm');
@@ -82,8 +81,12 @@ client.addListener('message', (from, to, message) => {
     if (commandMonitor[min] === ALERT_MESSAGES_PER_MINUTE) {
         alert('Euro 2016 IRC Bot High usage!', `Over ${ALERT_MESSAGES_PER_MINUTE} commands per minute detected.`);
     }
-    track('command', crypto.createHash('sha256').update(from).digest('hex'), { command, server, nick });
-    ircUtil.mapCommand(command, commandMapping, client);
+
+    if (ircUtil.mapCommand(command, commandMapping, client)) {
+        track('command', crypto.createHash('sha256').update(from).digest('hex'), { command, server, nick });
+    } else {
+        track('invalid_command', crypto.createHash('sha256').update(from).digest('hex'), { command, server, nick });
+    }
 });
 
 /* eslint-disable no-console */
