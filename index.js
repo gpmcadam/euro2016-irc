@@ -4,10 +4,12 @@ require('dotenv').config({silent: true});
 
 const irc = require('irc');
 const moment = require('moment');
+const crypto = require('crypto');
 
 const euro2016commands = require('./commands/euro2016');
 const alert = require('./util/alert');
 const ircUtil = require('./util/irc');
+const track = require('./util/track');
 
 const server = process.env.IRC_SERVER || 'irc.rizon.net';
 const nick = process.env.IRC_NICK || 'Euro2016';
@@ -69,6 +71,7 @@ client.addListener('registered', () => {
 client.addListener('message', (from, to, message) => {
     const command = ircUtil.parseCommand(message, from, to);
     if (!command) {
+        track('invalid_command', crypto.createHash('sha256').update(from).digest('hex'), { server, nick });
         return;
     }
     const min = moment(new Date).format('YYYY-MM-DD HH:mm');
@@ -79,11 +82,13 @@ client.addListener('message', (from, to, message) => {
     if (commandMonitor[min] === ALERT_MESSAGES_PER_MINUTE) {
         alert('Euro 2016 IRC Bot High usage!', `Over ${ALERT_MESSAGES_PER_MINUTE} commands per minute detected.`);
     }
+    track('command', crypto.createHash('sha256').update(from).digest('hex'), { command, server, nick });
     ircUtil.mapCommand(command, commandMapping, client);
 });
 
 /* eslint-disable no-console */
 client.addListener('error', message => {
     alert('ERROR with Euro2016 IRC Bot', message);
+    track('error', 0, { server, nick, message });
     console.log('error: ', message);
 });
