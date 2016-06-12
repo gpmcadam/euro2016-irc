@@ -1,4 +1,5 @@
-# Euro 2016 IRC Bot [![Build Status](https://snap-ci.com/gpmcadam/euro2016-irc/branch/master/build_image)](https://snap-ci.com/gpmcadam/euro2016-irc/branch/master)
+# Euro 2016 IRC Bot [![Build Status](https://snap-ci.com/gpmcadam/euro2016-irc/branch/master/build_image)](https://snap-ci.com/gpmcadam/euro2016-irc/branch/master) [![codecov](https://codecov.io/gh/gpmcadam/euro2016-irc/branch/master/graph/badge.svg)](https://codecov.io/gh/gpmcadam/euro2016-irc)
+
 
 This is a custom Euro 2016 IRC Bot. It has a very specific scope, and may not
 be easily adapted.
@@ -14,11 +15,11 @@ If you want to deploy your own version of this bot, you'll need a `.env` file (o
     IRC_NAME=Euro2016
     IRC_REALNAME="Euro2016 Bot"
     EURO2016_API_KEY=abc1234
-    
+
     # nickserv password (see the identification section in `index.js`
     # to adapt to your network specific identification service)
     IRC_PASSWORD=test
-    
+
     # the following env vars are for alerting/monitoring and are optional
     # the alerting system uses Amazon SNS, so you'll need to configure
     # an SNS topic, subscribe to it and set the ARN of the topic below

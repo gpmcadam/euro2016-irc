@@ -10,17 +10,11 @@ const alert = require('../../../util/alert');
 
 const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss ZZ';
 
-const makeRequest = (path, params, app, version) => {
-    if (!params) {
-        params = {};
-    }
+const makeRequest = (path, params, app) => {
     if (!app) {
         app = 'mobile/euro2016';
     }
-    if (!version) {
-        version = 2;
-    }
-
+    const version = 2;
     const options = {
         headers: {
             'Connection': 'close',
@@ -55,10 +49,13 @@ const getGroups = () => {
 };
 
 const getGroup = (groupId, byTeam) => {
-    if (byTeam === true) {
-        return getGroupByTeam(groupId);
-    }
     return new Promise((resolve, reject) => {
+        if (byTeam === true) {
+            getGroupByTeam(groupId)
+                .then(resolve)
+                .catch(reject);
+            return;
+        }
         getGroups().then(resp => {
             const group = resp.groups.filter(group => group.groupName.toUpperCase() === `GROUP ${groupId.toUpperCase()}`).shift();
             if (!group) {
@@ -67,7 +64,7 @@ const getGroup = (groupId, byTeam) => {
             }
             return resolve(group);
         })
-        .error(reject);
+        .catch(reject);
     });
 };
 
@@ -87,7 +84,7 @@ const getGroupByTeam = findTeam => {
             }
             return resolve(group);
         })
-        .error(reject);
+        .catch(reject);
     });
 };
 
@@ -113,7 +110,7 @@ const getMatchesForTeam = findTeam => {
             });
             resolve(resp);
         })
-        .error(reject);
+        .catch(reject);
     });
 };
 
@@ -145,7 +142,7 @@ const getMatches = queryDate => {
                 matches, queryDate
             });
         })
-        .error(reject);
+        .catch(reject);
     });
 };
 
@@ -167,7 +164,7 @@ const searchPlayer = query => {
                     resolve(fullPlayerData);
                 });
         })
-        .error(reject);
+        .catch(reject);
     });
 };
 
@@ -175,7 +172,7 @@ const getPlayer = playerId => {
     return new Promise((resolve, reject) => {
         makeRequest(`players/${playerId}`, { '$top': 20, '$skip': 0 })
             .then(resolve)
-            .error(reject);
+            .catch(reject);
     });
 };
 
