@@ -48,6 +48,11 @@ const helpMapping = {
     next: {
         desc: 'Show the next match',
         usage: ''
+    },
+    lineups: {
+        desc: 'Show the lineups for a specific match or the next match',
+        usage: '!lineups [COUNTRY]',
+        example: ['', 'england', 'ger']
     }
 };
 
@@ -59,7 +64,8 @@ const commandMapping = {
     team: euro2016commands.country,
     matches: euro2016commands.matches,
     player: euro2016commands.player,
-    next: euro2016commands.next
+    next: euro2016commands.next,
+    lineups: euro2016commands.lineups
 };
 
 client.addListener('registered', () => {

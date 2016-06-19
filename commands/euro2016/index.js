@@ -10,6 +10,25 @@ require('moment-precise-range-plugin');
 
 moment.tz.setDefault('Europe/Paris');
 
+const sendLineUps = (command, client, result) => {
+    const lineUps = result.lineups && result.lineups.lineupRootContract.lineUpHeader.status !== null ? result.lineups.lineupRootContract : null;
+    const match = result.match || null;
+    if (!match) {
+        client.say(command.to, `${command.from}: No matches found`);
+        return;
+    }
+    if (!lineUps) {
+        client.say(command.to, `${command.from}: No lineups released for ${match.homeTeamName} vs ${match.awayTeamName}`);
+        return;
+    }
+    const lineUpFormat = lineup => {
+        return lineup.filter(l => l.isFielded === 1).map(l => `${l.kindNameAbbreviation || ''} ${l.bibNum}. ${l.playerSurname}`).join(', ');
+    };
+    client.say(command.to, `${command.from}: Lineups for ${lineUps.lineUpHeader.homeTeam} vs ${lineUps.lineUpHeader.awayTeam}`);
+    client.say(command.to, `${command.from}: ${lineUps.lineUpHeader.homeTeam} ${lineUpFormat(lineUps.homeLineUpItems)}`);
+    client.say(command.to, `${command.from}: ${lineUps.lineUpHeader.awayTeam} ${lineUpFormat(lineUps.awayLineUpItems)}`);
+};
+
 const sendGroup = (command, client, group) => {
     const table = new AsciiTable();
     client.say(command.to, `${command.from}: ${group.groupName}`);
@@ -88,7 +107,7 @@ const matches = (command, client) => {
 };
 
 const player = (command, client) => {
-    return euro2016.searchPlayer(command.text)
+    return euro2016.searchPlayer(command.text || '')
         .then(player => {
             sendPlayer(command, client, player);
         })
@@ -114,4 +133,14 @@ const next = (command, client) => {
         });
 };
 
-module.exports = { group, country, matches, player, next };
+const lineups = (command, client) => {
+    return euro2016.getLineups(command.text)
+        .then(result => {
+            return sendLineUps(command, client, result);
+        })
+        .catch(e => {
+            return sendError(command, client, e.message);
+        });
+};
+
+module.exports = { group, country, matches, player, next, lineups };
