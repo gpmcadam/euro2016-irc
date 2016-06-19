@@ -88,4 +88,26 @@ describe('Euro2016!lineups', () => {
                 done();
             });
     });
+    it('should show an error if service unavailable', done => {
+        nock('http://daaseuro2016.uefa.com/')
+            .filteringPath(() => {
+                return '/';
+            })
+            .get('/')
+            .query(() => {
+                return true;
+            })
+            .reply(404)
+            .filteringPath(() => {
+                return '/';
+            });
+        const command = { from: 'John', to: '#channel', text: 'france', args: ['france'] };
+        const client = { say: sinon.spy() };
+        lineups(command, client)
+            .finally(() => {
+                assert.isTrue(client.say.called);
+                expect(client.say.getCall(0).args[1]).to.contain('ERROR');
+                done();
+            });
+    });
 });

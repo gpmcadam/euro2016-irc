@@ -107,7 +107,7 @@ const matches = (command, client) => {
 };
 
 const player = (command, client) => {
-    return euro2016.searchPlayer(command.text || '')
+    return euro2016.searchPlayer(command.text)
         .then(player => {
             sendPlayer(command, client, player);
         })
