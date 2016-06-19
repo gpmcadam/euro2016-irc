@@ -34,7 +34,6 @@ describe('Euro2016!lineups', () => {
                 done();
             });
     });
-
     it('should show no lineups for match if none', done => {
         const clock = sinon.useFakeTimers(new Date(2016,5,19,10,0,0).getTime());
         nock('http://daaseuro2016.uefa.com/')
@@ -54,19 +53,19 @@ describe('Euro2016!lineups', () => {
                 return true;
             })
             .replyWithFile(200, __dirname + '/stub/euro2016-lineup-empty.json');
-        const command = { from: 'John', to: '#channel', text: 'next', args: ['next'] };
+        const command = { from: 'John', to: '#channel', text: 'albania', args: ['albania'] };
         const client = { say: sinon.spy() };
         lineups(command, client)
             .finally(() => {
                 assert.isTrue(client.say.called);
-                expect(client.say.getCall(0).args[1]).to.contain('No lineups released for');
+                expect(client.say.getCall(0).args[1]).to.contain('Albania');
+                expect(client.say.getCall(0).args[1]).to.contain('Romania');
                 clock.restore();
                 done();
             });
     });
-
     it('should show no lineups if none', done => {
-        const clock = sinon.useFakeTimers(new Date(2016,8,18,16,0,0).getTime());
+        const clock = sinon.useFakeTimers(new Date(2016,8,19,16,0,0).getTime());
         nock('http://daaseuro2016.uefa.com/')
             .filteringPath(() => {
                 return '/';
@@ -79,12 +78,12 @@ describe('Euro2016!lineups', () => {
             .filteringPath(() => {
                 return '/';
             });
-        const command = { from: 'John', to: '#channel', text: '', args: [] };
+        const command = { from: 'John', to: '#channel', text: 'france', args: ['france'] };
         const client = { say: sinon.spy() };
         lineups(command, client)
             .finally(() => {
                 assert.isTrue(client.say.called);
-                expect(client.say.getCall(0).args[1]).to.contain('No lineups');
+                expect(client.say.getCall(0).args[1]).to.contain('No matches found');
                 clock.restore();
                 done();
             });

@@ -50,9 +50,9 @@ const helpMapping = {
         usage: ''
     },
     lineups: {
-        desc: 'Show the lineups for the current or next match (default is next)',
-        usage: '!lineups [current[|next]]',
-        example: ['', 'next', 'current']
+        desc: 'Show the lineups for a specific match or the next match',
+        usage: '!lineups [COUNTRY]',
+        example: ['', 'england', 'ger']
     }
 };
 

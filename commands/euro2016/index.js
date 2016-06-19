@@ -14,7 +14,7 @@ const sendLineUps = (command, client, result) => {
     const lineUps = result.lineups && result.lineups.lineupRootContract.lineUpHeader.status !== null ? result.lineups.lineupRootContract : null;
     const match = result.match || null;
     if (!match) {
-        client.say(command.to, `${command.from}: No lineups released today.`);
+        client.say(command.to, `${command.from}: No matches found`);
         return;
     }
     if (!lineUps) {
@@ -107,7 +107,7 @@ const matches = (command, client) => {
 };
 
 const player = (command, client) => {
-    return euro2016.searchPlayer(command.text)
+    return euro2016.searchPlayer(command.text || '')
         .then(player => {
             sendPlayer(command, client, player);
         })
@@ -134,7 +134,7 @@ const next = (command, client) => {
 };
 
 const lineups = (command, client) => {
-    return euro2016.getLineups(command.text.toUpperCase() === 'NEXT')
+    return euro2016.getLineups(command.text)
         .then(result => {
             return sendLineUps(command, client, result);
         })

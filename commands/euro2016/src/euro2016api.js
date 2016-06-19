@@ -10,6 +10,11 @@ const alert = require('../../../util/alert');
 
 const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss ZZ';
 
+const queryTeam = (query, team) => {
+    const reg = new RegExp(query.replace(' ', '.*'), 'i');
+    return reg.test(team);
+};
+
 const makeRequest = (path, params, app) => {
     if (!app) {
         app = 'mobile/euro2016';
@@ -95,8 +100,6 @@ const matchTeamName = (teamName, query) => {
 const getMatchesForTeam = findTeam => {
     return new Promise((resolve, reject) => {
         getMatches().then(resp => {
-            // console.log(resp.matches);
-            // console.log(resp.matches.filter(match => match.matchDateTime !== undefined).length);
             resp.matches = resp.matches.filter(match => {
                 const isAwayTeam = matchTeamName(match.awayTeamName, findTeam);
                 const isHomeTeam = matchTeamName(match.homeTeamName, findTeam);
@@ -186,10 +189,7 @@ const getLineupsForMatch = matchId => {
     });
 };
 
-const getLineups = next => {
-    if (!next) {
-        next = false;
-    }
+const getLineups = query => {
     return new Promise((resolve, reject) => {
         getMatches().then(resp => {
             const matches = resp.matches;
@@ -197,17 +197,18 @@ const getLineups = next => {
                 match: null,
                 lineups: null
             };
-            if (next) {
-                lineupResp.match = matches
-                    .filter(match => match.status === 1 && match.dateTime.isAfter(moment(new Date)))
-                    .shift();
-            } else {
-                lineupResp.match = matches
-                    .filter(match =>
-                        match.status !== 1
-                            && match.dateTime.isSame(moment(new Date), 'd'))
-                    .shift();
-            }
+            lineupResp.match = matches
+                .filter(match => {
+                    if (!match.dateTime.isSame(moment(new Date), 'd')) {
+                        return false;
+                    }
+                    if (query.trim() !== '') {
+                        return queryTeam(query, match.homeTeamName) || queryTeam(query, match.awayTeamName);
+                    } else {
+                        return match.dateTime.isAfter(moment(new Date));
+                    }
+                })
+                .shift();
             if (!lineupResp.match) {
                 resolve(lineupResp);
                 return;
