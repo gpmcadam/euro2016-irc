@@ -176,6 +176,53 @@ const getPlayer = playerId => {
     });
 };
 
+const getLineupsForMatch = matchId => {
+    return new Promise((resolve, reject) => {
+        makeRequest(`matches/${matchId}/lineup`, {
+            isMobileApp: 'true'
+        }, 'football')
+        .then(resolve)
+        .catch(reject);
+    });
+};
+
+const getLineups = next => {
+    if (!next) {
+        next = false;
+    }
+    return new Promise((resolve, reject) => {
+        getMatches().then(resp => {
+            const matches = resp.matches;
+            const lineupResp = {
+                match: null,
+                lineups: null
+            };
+            if (next) {
+                lineupResp.match = matches
+                    .filter(match => match.status === 1 && match.dateTime.isAfter(moment(new Date)))
+                    .shift();
+            } else {
+                lineupResp.match = matches
+                    .filter(match =>
+                        match.status !== 1
+                            && match.dateTime.isSame(moment(new Date), 'd'))
+                    .shift();
+            }
+            if (!lineupResp.match) {
+                resolve(lineupResp);
+                return;
+            }
+            getLineupsForMatch(lineupResp.match.idMatch)
+                .then(lineups => {
+                    lineupResp.lineups = lineups;
+                    resolve(lineupResp);
+                })
+                .catch(reject);
+        })
+        .catch(reject);
+    });
+};
+
 module.exports = {
     getGroups,
     getGroup,
@@ -183,5 +230,6 @@ module.exports = {
     getMatches,
     getMatchesForTeam,
     searchPlayer,
-    getPlayer
+    getPlayer,
+    getLineups
 };
